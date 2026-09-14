@@ -96,17 +96,19 @@ The contract is:
   environment-variable names. Every listed variable must be non-empty or the
   validator returns infrastructure error (`2`) before executing sample code.
 - `live_service_validation.substitutions` is optional. Use it when source files
-  intentionally retain copy/paste instructional placeholders, such as
-  `"your_project_endpoint"`, but the validation caller owns the real value.
-  Each substitution names a file inside the sample directory and one or more
+  intentionally contain copy/paste instructional placeholders, such as
+  `"your_project_endpoint"`, but the validation caller owns the real value. Each
+  substitution names a file inside the sample directory and one or more
   `placeholder` to `env` replacements. The validator requires each environment
-  variable to be non-empty and replaces every exact placeholder occurrence in
-  the workflow checkout before running the live-service command. It returns
-  infrastructure error (`2`) if a target is outside the sample directory,
-  missing, malformed, or lacks the placeholder. All substitutions are
-  validated and applied in memory before any file is written, so a rejected
-  declaration never leaves a partial rewrite. Target files must be regular,
-  non-symlinked text files without NUL bytes.
+  variable to be non-empty, replaces every exact placeholder occurrence in the
+  workflow checkout before running the live-service command, and returns
+  infrastructure error (`2`) if the target file is outside the sample directory,
+  missing, malformed, or does not contain the placeholder. Substitutions are
+  validated and applied in memory first and written only after the whole
+  declaration is valid, so a rejected declaration never leaves a partially
+  rewritten checkout. Target files must be regular, non-symlinked text files
+  without NUL bytes. Rewriting uses Bash only, so a substitution never adds a
+  toolchain requirement beyond the sample's own language.
 - `SKIP_PROVISION` is a reserved caller input and must be set to exactly `true`
   or `false` whenever live-service validation is declared. The validator
   passes it through but never provisions resources itself. Current repository
