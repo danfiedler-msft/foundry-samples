@@ -98,8 +98,7 @@ these options avoid triggering a live-service run in the shared pipeline.
 Include `sample.yaml` but **omit** the `live_service_validation` block.
 - The sample is still discovered and compiled/checked for build readiness by PRs
   and the daily cadence (that part of "full run" still happens automatically).
-- No live-service call is ever made by CI/daily cadence, because there's nothing
-  declared for it to run.
+- No sample-owned live-service command is run by CI/daily cadence, because there's nothing declared for it to run. The PR `trusted` check still performs its repository-level warm-project smoke.
 
 ### Option 2: Run Validation Yourself, On Demand
 Instead of waiting for CI or the daily cadence to pick up your sample, invoke the
