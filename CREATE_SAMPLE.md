@@ -8,6 +8,8 @@ This guide provides the minimum steps to create a sample in this repository and 
 
 All samples live under `samples/<language>/<sample-folder>/` (supported languages: `csharp`, `java`, `javascript`, `python`, `typescript`, `go`).
 
+> **Note:** `validate-sample.sh` itself only accepts `csharp`, `python`, `typescript`, `java`, and `go` as a `--language` value. CI maps `javascript` samples to the `typescript` validator automatically, but if you invoke the script directly (see Option 2 below), pass `--language typescript` for JavaScript samples — passing `--language javascript` will fail. Daily cadence discovery does not currently enable Go samples.
+
 A sample is **defined and discovered** by the presence of a `sample.yaml` file in its root directory.
 
 ---
@@ -35,7 +37,7 @@ live_service_validation:
     - FOUNDRY_MODEL_DEPLOYMENT
 ```
 
-For completeness, here is a full `sample.yaml` as it looks for a real quickstart sample:
+For completeness, here is the full `sample.yaml` as it looks for a real quickstart sample:
 
 ```yaml
 name: Quickstart Create Agent
@@ -47,11 +49,19 @@ live_service_validation:
   command: "python quickstart-create-agent.py"
   required_env:
     - FOUNDRY_PROJECT_ENDPOINT
+    - MODEL_DEPLOYMENT
+  substitutions:
+    - file: quickstart-create-agent.py
+      replacements:
+        - placeholder: "your_project_endpoint"
+          env: FOUNDRY_PROJECT_ENDPOINT
+        - placeholder: "gpt-5-mini"
+          env: MODEL_DEPLOYMENT
 ```
 
 ### How Full Runs Process This:
 - **Build Readiness:** Always runs build/compilation checks on PR touches and daily cadence.
-- **Live-Service Run:** Runs `live_service_validation.command` only if the `live_service_validation` section is present in `sample.yaml`.
+- **Live-Service Run:** The sample-owned `live_service_validation.command` is run only during the daily validation pilot (and when invoked locally, as shown below); it is not executed by the PR workflow.
 - **Environment variables:** Use the `FOUNDRY_PROJECT_ENDPOINT` / `FOUNDRY_MODEL_DEPLOYMENT` names in `required_env` — the daily cadence provides these. (The older `AZURE_AI_PROJECT_ENDPOINT` / `MODEL_DEPLOYMENT` names are still provided too, for backward compatibility, but new samples should use the `FOUNDRY_` names.)
 
 ### Handling Hardcoded "Provide Your Own" Placeholders
